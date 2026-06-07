@@ -1,0 +1,11 @@
+target/
+.settings/
+.metadata/
+bin/
+*.class
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.log
+.DS_Store
