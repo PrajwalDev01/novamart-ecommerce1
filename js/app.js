@@ -72,9 +72,10 @@ const DEFAULT_PRODUCTS = [
         description: 'Ultra-fast external storage for creatives.',
         price: 18000.00,
         categoryId: 1,
-        imageUrl: 'https://m.media-amazon.com/images/I/514aF26gvgL.jpg',
+        imageUrl: 'https://m.media-amazon.com/images/I/712v5v63bfL._AC_SL1500_.jpg',
         specifications: 'Capacity: 2TB\nInterface: USB 3.2 Gen 2'
     },
+
 
     // Category 2: Appliances
     {
@@ -444,12 +445,15 @@ const DEFAULT_VARIANTS = [
 
 // DB Setup on local storage
 function initializeDatabase() {
-    // If database exists but contains old format, clear it so we force reload the new products
-    if (localStorage.getItem('novamart_products') && !localStorage.getItem('novamart_products').includes('WH-1000XM5')) {
+    // If database exists but contains old format or broken image, clear it so we force reload the new products
+    if (localStorage.getItem('novamart_products') && 
+        (!localStorage.getItem('novamart_products').includes('WH-1000XM5') || 
+         localStorage.getItem('novamart_products').includes('514aF26gvgL.jpg'))) {
         localStorage.removeItem('novamart_categories');
         localStorage.removeItem('novamart_products');
         localStorage.removeItem('novamart_variants');
     }
+
 
     if (!localStorage.getItem('novamart_categories')) {
         localStorage.setItem('novamart_categories', JSON.stringify(DEFAULT_CATEGORIES));
