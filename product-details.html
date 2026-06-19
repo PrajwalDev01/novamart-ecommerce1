@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | NovaMart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .product-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        .detail-img {
+            width: 100%;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            max-height: 500px;
+            object-fit: cover;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .spec-table th {
+            text-align: left;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            width: 30%;
+            color: var(--text);
+        }
+        .spec-table td {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+        
+        .variant-section {
+            margin-bottom: 2rem;
+        }
+        .variant-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--text);
+        }
+        
+        .size-grid {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .size-box {
+            width: 60px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text);
+            transition: var(--transition);
+        }
+        .size-box.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .size-box:hover:not(.active) {
+            border-color: var(--accent);
+        }
+
+        .color-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .color-circle::after {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .color-circle.active::after {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">NovaMart</a></div>
+        
+        <div class="search-container">
+            <form action="index.html" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Search products, brands and more..." class="search-input">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
+
+        <ul class="nav-links" id="nav-links">
+            <!-- Dynamic -->
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div id="alert-container"></div>
+
+        <div class="product-detail-container" id="product-detail-container">
+            <!-- Dynamic product rendering -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 NovaMart. All rights reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        let selectedSize = null;
+        let selectedColor = null;
+        let product = null;
+        let variants = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = parseInt(params.get('id'));
+            
+            product = db.getProductById(productId);
+            if (!product) {
+                document.getElementById('product-detail-container').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+                        <h2>Product Not Found</h2>
+                        <a href="index.html" class="btn" style="margin-top: 1.5rem;">Return to Shop</a>
+                    </div>
+                `;
+                return;
+            }
+
+            document.title = `${product.name} | NovaMart`;
+            variants = db.getVariantsByProductId(product.id);
+
+            const sizes = [...new Set(variants.map(v => v.size).filter(s => s && s.trim() !== ''))];
+            const colors = [...new Set(variants.map(v => v.color).filter(c => c && c.trim() !== ''))];
+
+            selectedSize = sizes.length > 0 ? sizes[0] : null;
+            selectedColor = colors.length > 0 ? colors[0] : null;
+
+            renderProduct();
+        });
+
+        function renderProduct() {
+            const container = document.getElementById('product-detail-container');
+            const currentUser = auth.getCurrentUser();
+
+            // Specifications html
+            let specsHtml = '';
+            if (product.specifications) {
+                specsHtml = `
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Specifications</h3>
+                        <table class="spec-table">
+                            ${product.specifications.split('\n').map(line => {
+                                const parts = line.split(':');
+                                if (parts.length >= 2) {
+                                    return `<tr><th>${parts[0].trim()}</th><td>${parts.slice(1).join(':').trim()}</td></tr>`;
+                                }
+                                return '';
+                            }).join('')}
+                        </table>
+                    </div>
+                `;
+            }
+
+            // Variant HTML
+            const sizes = [...new Set(variants.map(v => v.size).filter(s => s && s.trim() !== ''))];
+            const colors = [...new Set(variants.map(v => v.color).filter(c => c && c.trim() !== ''))];
+
+            let sizeHtml = '';
+            if (sizes.length > 0) {
+                sizeHtml = `
+                    <div class="variant-section">
+                        <span class="variant-label">Select Size</span>
+                        <div class="size-grid">
+                            ${sizes.map(size => {
+                                const activeClass = size === selectedSize ? 'active' : '';
+                                return `<div class="size-box ${activeClass}" onclick="selectSize('${size}')">${size}</div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let colorHtml = '';
+            if (colors.length > 0) {
+                colorHtml = `
+                    <div class="variant-section">
+                        <span class="variant-label">Select Color</span>
+                        <div class="color-grid">
+                            ${colors.map(color => {
+                                const activeClass = color === selectedColor ? 'active' : '';
+                                const bg = color.toLowerCase();
+                                const borderStyle = bg === 'white' ? 'border: 1px solid #ddd;' : '';
+                                return `<div class="color-circle ${activeClass}" style="background: ${bg}; ${borderStyle}" onclick="selectColor('${color}')" title="${color}"></div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let interactionHtml = '';
+            if (currentUser) {
+                interactionHtml = `
+                    <form id="cartForm" onsubmit="handleAddToCart(event)">
+                        ${sizeHtml}
+                        ${colorHtml}
+                        <div class="form-group" style="width: 120px; margin-top: 1.5rem;">
+                            <label>Quantity</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="10">
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer; margin-top: 2rem; font-size: 1.1rem; padding: 1.2rem;">Add to Cart</button>
+                    </form>
+                `;
+            } else {
+                interactionHtml = `
+                    <div style="background: var(--light-gray); padding: 2rem; border-radius: 20px; text-align: center;">
+                        <p style="margin-bottom: 1rem;">Please login to add this item to your cart.</p>
+                        <a href="login.html" class="btn" style="padding: 0.8rem 2rem;">Login Now</a>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.name}" class="detail-img">
+                <div class="product-info-panel">
+                    <p style="text-transform: uppercase; letter-spacing: 2px; color: #636e72; font-weight: 600; margin-bottom: 1rem;">Premium Collection</p>
+                    <h1 style="font-size: 3rem; margin-bottom: 1.5rem;">${product.name}</h1>
+                    <p style="font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 2rem;">₹${product.price.toLocaleString('en-IN')}</p>
+                    <p style="color: #636e72; font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">${product.description}</p>
+                    
+                    ${specsHtml}
+                    ${interactionHtml}
+                </div>
+            `;
+        }
+
+        function selectSize(size) {
+            selectedSize = size;
+            renderProduct();
+        }
+
+        function selectColor(color) {
+            selectedColor = color;
+            renderProduct();
+        }
+
+        function handleAddToCart(event) {
+            event.preventDefault();
+            
+            // Find valid variant matching size and color
+            const sizes = [...new Set(variants.map(v => v.size).filter(s => s && s.trim() !== ''))];
+            const colors = [...new Set(variants.map(v => v.color).filter(c => c && c.trim() !== ''))];
+
+            const activeVariant = variants.find(v => 
+                (sizes.length === 0 || v.size === selectedSize) && 
+                (colors.length === 0 || v.color === selectedColor)
+            );
+
+            if (!activeVariant && variants.length > 0) {
+                showAlert('❌ Selected size/color combination is currently unavailable.', 'error');
+                return;
+            }
+
+            const qty = parseInt(document.getElementById('quantity').value);
+            const res = cart.addToCart(product.id, activeVariant ? activeVariant.id : 0, qty);
+
+            if (res.success) {
+                showAlert('✨ Added to your selection! <a href="cart.html" style="color: white; font-weight: 700;">View Cart</a>', 'success');
+            } else {
+                showAlert(`❌ Oops! We couldn't add that to your cart. ${res.error}`, 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const bg = type === 'success' ? '#00b894' : '#fee2e2';
+            const color = type === 'success' ? 'white' : '#991b1b';
+            const border = type === 'success' ? 'none' : '1px solid #fca5a5';
+
+            container.innerHTML = `
+                <div style="background: ${bg}; color: ${color}; border: ${border}; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; text-align: center;">
+                    ${message}
+                </div>
+            `;
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

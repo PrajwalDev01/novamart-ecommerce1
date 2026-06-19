@@ -92,7 +92,7 @@
             </main>
 
             <footer>
-                <p>&copy; 2026 PrajwalMart. All rights reserved.</p>
+                <p>&copy; 2026 NovaMart. All rights reserved.</p>
             </footer>
 
             <script src="js/main.js"></script>

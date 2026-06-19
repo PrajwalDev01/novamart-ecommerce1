@@ -4,7 +4,7 @@
   <artifactId>FashionStore</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
-  <name>NovaMart</name>
+  <name>FashionStore</name>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -52,7 +52,7 @@
   </dependencies>
 
   <build>
-    <finalName>NovaMart</finalName>
+    <finalName>FashionStore</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
