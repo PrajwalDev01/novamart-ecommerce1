@@ -34,3 +34,6 @@ A modern, premium e-commerce web application specializing in fashion and style s
 2. Ensure you have configured Tomcat 9 in Eclipse under **Preferences > Server > Runtime Environments**.
 3. Right-click the project folder -> **Run As -> Run on Server**.
 4. Access the store at `http://localhost:8080/NovaMart/`.
+
+# novamart-ecommerce1
+
