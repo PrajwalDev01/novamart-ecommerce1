@@ -617,15 +617,21 @@ function renderNav() {
     const navRight = document.getElementById('nav-links');
     if (!navRight) return;
 
-    const allActive = !window.location.search && window.location.pathname.endsWith('index.html') ? 'active' : '';
-    const cartActive = window.location.pathname.endsWith('cart.html') ? 'active' : '';
+    const currentParams = new URLSearchParams(window.location.search);
+    const selectedCat = currentParams.get('category');
+    
+    // Normalize path to support different hostings
+    const path = window.location.pathname.toLowerCase();
+    const isHome = path.endsWith('/') || path.endsWith('index.html') || path.endsWith('novamart-ecommerce1') || path.endsWith('novamart-ecommerce1/');
+    
+    const allActive = !selectedCat && !currentParams.get('search') && isHome ? 'active' : '';
+    const cartActive = path.endsWith('cart.html') ? 'active' : '';
 
     let html = `<li><a href="index.html" class="${allActive}">All</a></li>`;
 
+
     // Add categories dynamically
     const categories = db.getCategories();
-    const currentParams = new URLSearchParams(window.location.search);
-    const selectedCat = currentParams.get('category');
 
     categories.forEach(cat => {
         const active = selectedCat === cat.id.toString() ? 'active' : '';
