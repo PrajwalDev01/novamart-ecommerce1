@@ -72,7 +72,7 @@ const DEFAULT_PRODUCTS = [
         description: 'Ultra-fast external storage for creatives.',
         price: 18000.00,
         categoryId: 1,
-        imageUrl: 'https://m.media-amazon.com/images/I/712v5v63bfL._AC_SL1500_.jpg',
+        imageUrl: 'https://tse4.mm.bing.net/th/id/OIP.I0NUQK2RHPLvmVsfo9TTfgHaHa?pid=Api&h=220&P=0',
         specifications: 'Capacity: 2TB\nInterface: USB 3.2 Gen 2'
     },
 
